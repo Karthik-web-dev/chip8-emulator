@@ -6,7 +6,6 @@ pub struct Display {
 }
 
 const SCREEN_WIDTH: u16 = 64;
-const SCREEN_HEIGHT: u16 = 32;
 
 impl Display {
     pub fn new() -> Self {
@@ -62,7 +61,7 @@ impl Chip8 {
                 0x00E0 => { //clear screen
                     self.display.pixels = std::array::from_fn(|_| 0);
                 },
-                _ => {unreachable!();}
+                _ => {panic!("Unknown opcode: {:#06X}", opcode);}
             },
 
             0x1000 => { //Jump: Do not increment PC 
@@ -147,7 +146,7 @@ impl Chip8 {
                     self.v[x] <<= 1;
                     self.v[0xF] = msb;
                     }
-                _ => unreachable!(),
+                _ => panic!("Unknown opcode: {:#06X}", opcode),
             }
 
             0x9000 => { //skip instr if vx != vy
@@ -179,7 +178,7 @@ impl Chip8 {
                         if (pixels & (0x80 >> bit)) != 0 {  
                             let x_cord = (x + bit as u16) % 64;
                             let y_cord = (y + row_num as u16) % 32;
-                            let idx = x_cord + y_cord * 64; 
+                            let idx = x_cord + y_cord * SCREEN_WIDTH; 
                             if self.display.pixels[idx as usize] == 1 {
                                 self.v[0xF] = 1;
                             }
@@ -200,7 +199,7 @@ impl Chip8 {
                         self.pc += 2;
                     }
                 },
-                _ => unreachable!(),
+                _ => panic!("Unknown opcode: {:#06X}", opcode),
             }
 
             0xF000 => match opcode & 0x00FF{
@@ -254,7 +253,7 @@ impl Chip8 {
                         self.v[i] = self.memory.read_u8(self.index + i as u16);
                     }
                 },
-                _ => unreachable!(),
+                _ => panic!("Unknown opcode: {:#06X}", opcode),
             }
             _ => panic!("Incorrect Opcode"),
         }
